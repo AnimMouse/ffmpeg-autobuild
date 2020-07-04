@@ -15,28 +15,37 @@ jobs:
           fetch-depth: 1
           
       - name: Install dependencies
-        run: sh -x dependencies.sh
+        run: ./dependencies.sh
         
       - name: Move helpers
         run: mv -v ./ffmpeg-windows-build-helpers/* ./
           
       - name: Compile FFmpeg
-        run: ./cross_compile_ffmpeg.sh --ffmpeg-source-dir=ffmpeg --disable-nonfree=n --sandbox-ok=y --compiler-flavors=win64 --debug
+        run: ./cross_compile_ffmpeg.sh --ffmpeg-source-dir=ffmpeg --gcc-cpu-count=2 --disable-nonfree=n --sandbox-ok=y --compiler-flavors=win64
           
       - name: Upload artifact 1
         uses: actions/upload-artifact@v2
         with:
           name: ffmpeg1
-          path: ffmpeg.exe
+          path: ffmpeg/ffmpeg.exe
           
       - name: Upload artifact 2
         uses: actions/upload-artifact@v2
+        if: failure()
         with:
-          name: ffmpeg2
-          path: ffmpeg/ffmpeg.exe
+          name: ffmpeg1
+          path: ffmpeg/win64/ffmpeg.exe
           
       - name: Upload artifact 3
         uses: actions/upload-artifact@v2
+        if: failure()
+        with:
+          name: ffmpeg2
+          path: ffmpeg.exe
+          
+      - name: Upload artifact 4
+        uses: actions/upload-artifact@v2
+        if: failure()
         with:
           name: ffmpeg3
           path: sandbox/ffmpeg.exe
