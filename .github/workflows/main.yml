@@ -23,6 +23,12 @@ jobs:
       - name: Configure FFmpeg
         run: sh -x configure-build.sh
         
+      - uses: actions/upload-artifact@v2
+        if: failure()
+        with:
+          name: config log failure
+          path: config.log
+        
       - name: Build FFmpeg
         run: make
           
