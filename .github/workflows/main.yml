@@ -15,7 +15,9 @@ jobs:
           fetch-depth: 1
           
       - name: Install dependencies
-        run: ./dependencies.sh
+        run: |
+          chmod +x dependencies.sh
+          ./dependencies.sh
         
       - name: Move helpers
         run: mv -v ./ffmpeg-windows-build-helpers/* ./
