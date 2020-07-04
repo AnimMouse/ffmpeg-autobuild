@@ -17,11 +17,11 @@ jobs:
       - name: Install dependencies
         run: sh -x dependencies.sh
         
-      - name: Copy source code
+      - name: Move source code
         run: cp -av ./ffmpeg/* ./
           
       - name: Configure FFmpeg
-        run: sh -x configure-build.sh
+        run: ./configure --arch=x86_64 --target-os=mingw32 --cross-prefix=x86_64-w64-mingw32- --enable-gpl --enable-nonfree --enable-gnutls --enable-libass --enable-libfdk-aac --enable-libfreetype --enable-libmp3lame --enable-libopus --enable-libvorbis --enable-libvpx --enable-libx264 --enable-libx265
         
       - name: Build FFmpeg
         run: make
