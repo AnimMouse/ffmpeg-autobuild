@@ -14,10 +14,13 @@ jobs:
           submodules: true
           fetch-depth: 1
           
+      - name: Install mingw-w64
+        run: sudo apt-get install mingw-w64
+        
       - name: Copy source code
         run: cp -av ./ffmpeg/* ./
           
-      - name: Create MD for ebook
+      - name: Build FFmpeg
         run: |
           ./configure --arch=x86 --target-os=mingw32 --cross-prefix=i686-w64-mingw32-
           make
