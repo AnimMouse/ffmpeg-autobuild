@@ -18,7 +18,7 @@ jobs:
         run: mv -v ./ffmpeg-windows-build-helpers/* ./
           
       - name: Compile FFmpeg
-        run: sh -x cross_compile_ffmpeg.sh --ffmpeg-source-dir=ffmpeg --disable-nonfree=n --sandbox-ok=y --compiler-flavors=win64 --debug
+        run: ./cross_compile_ffmpeg.sh --ffmpeg-source-dir=ffmpeg --disable-nonfree=n --sandbox-ok=y --compiler-flavors=win64 --debug
           
       - name: Upload artifact 1
         uses: actions/upload-artifact@v2
