@@ -1,0 +1,29 @@
+name: Build FFmpeg
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  build:
+    runs-on: ubuntu-20.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          submodules: true
+          fetch-depth: 1
+          
+      - name: Copy source code
+        run: cp -av ./ffmpeg/* ./
+          
+      - name: Create MD for ebook
+        run: |
+          ./configure --arch=x86 --target-os=mingw32 --cross-prefix=i686-w64-mingw32-
+          make
+          
+      - name: Upload artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: ffmpeg
+          path: ffmpeg.exe
