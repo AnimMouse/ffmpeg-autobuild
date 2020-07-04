@@ -14,7 +14,10 @@ jobs:
           submodules: true
           fetch-depth: 1
           
-      - name: Move source code
+      - name: Install dependencies
+        run: sh -x dependencies.sh
+        
+      - name: Move helpers
         run: mv -v ./ffmpeg-windows-build-helpers/* ./
           
       - name: Compile FFmpeg
