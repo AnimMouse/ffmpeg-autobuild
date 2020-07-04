@@ -1,1 +1,0 @@
-./configure --enable-gpl --enable-nonfree --enable-gnutls --enable-libass --enable-libfdk-aac --enable-libfreetype --enable-libmp3lame --enable-libopus --enable-libvorbis --enable-libvpx --enable-libx264 --enable-libx265

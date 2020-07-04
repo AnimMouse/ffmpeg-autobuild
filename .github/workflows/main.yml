@@ -14,26 +14,26 @@ jobs:
           submodules: true
           fetch-depth: 1
           
-      - name: Install dependencies
-        run: sh -x dependencies.sh
-        
       - name: Move source code
-        run: mv -v ./ffmpeg/* ./
+        run: mv -v ./ffmpeg-windows-build-helpers/* ./
           
-      - name: Configure FFmpeg
-        run: sh -x configure-build.sh
-        
-      - uses: actions/upload-artifact@v2
-        if: failure()
-        with:
-          name: ffbuild config log
-          path: ffbuild/config.log
-        
-      - name: Build FFmpeg
-        run: make
+      - name: Compile FFmpeg
+        run: sh -x cross_compile_ffmpeg.sh --ffmpeg-source-dir=ffmpeg --disable-nonfree=n --sandbox-ok=y --compiler-flavors=win64 --debug
           
-      - name: Upload artifact
+      - name: Upload artifact 1
         uses: actions/upload-artifact@v2
         with:
-          name: ffmpeg
-          path: ffmpeg
+          name: ffmpeg1
+          path: ffmpeg.exe
+          
+      - name: Upload artifact 2
+        uses: actions/upload-artifact@v2
+        with:
+          name: ffmpeg2
+          path: ffmpeg/ffmpeg.exe
+          
+      - name: Upload artifact 3
+        uses: actions/upload-artifact@v2
+        with:
+          name: ffmpeg3
+          path: sandbox/ffmpeg.exe
