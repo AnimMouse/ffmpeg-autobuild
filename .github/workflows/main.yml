@@ -18,7 +18,7 @@ jobs:
         run: sh -x dependencies.sh
         
       - name: Move source code
-        run: mv -rv ./ffmpeg/* ./
+        run: mv -v ./ffmpeg/* ./
           
       - name: Configure FFmpeg
         run: sh -x configure-build.sh
