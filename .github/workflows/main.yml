@@ -24,7 +24,7 @@ jobs:
         run: mv -v ./ffmpeg-windows-build-helpers/* ./
           
       - name: Compile FFmpeg
-        run: ./cross_compile_ffmpeg.sh --gcc-cpu-count=2 --disable-nonfree=n --sandbox-ok=y --compiler-flavors=win64
+        run: ./cross_compile_ffmpeg.sh --ffmpeg-source-dir=./ffmpeg-source --gcc-cpu-count=2 --disable-nonfree=n --sandbox-ok=y --compiler-flavors=win64
           
       - name: Upload FFmpeg with fdk aac
         uses: actions/upload-artifact@v2
