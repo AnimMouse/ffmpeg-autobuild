@@ -26,29 +26,26 @@ jobs:
       - name: Compile FFmpeg
         run: ./cross_compile_ffmpeg.sh --gcc-cpu-count=2 --disable-nonfree=n --sandbox-ok=y --compiler-flavors=win64
           
-      - name: Upload artifact 1
+      - name: Upload FFmpeg with fdk aac
         uses: actions/upload-artifact@v2
         with:
-          name: ffmpeg1
-          path: ffmpeg/ffmpeg.exe
+          name: ffmpeg-win64-nonfree
+          path: sandbox/win64/ffmpeg_git_with_fdk_aac/ffmpeg.exe
           
-      - name: Upload artifact 2
+      - name: Upload FFmpeg GPL
         uses: actions/upload-artifact@v2
-        if: failure()
         with:
-          name: ffmpeg1
-          path: ffmpeg/win64/ffmpeg.exe
+          name: ffmpeg-win64-gpl
+          path: sandbox/cross_compilers/mingw-w64-x86_64/x86_64-w64-mingw32/bin/ffmpeg.exe
           
-      - name: Upload artifact 3
+      - name: Upload FFplay with fdk aac
         uses: actions/upload-artifact@v2
-        if: failure()
         with:
-          name: ffmpeg2
-          path: ffmpeg.exe
+          name: ffplay-win64-nonfree
+          path: sandbox/win64/ffmpeg_git_with_fdk_aac/ffplay.exe
           
-      - name: Upload artifact 4
+      - name: Upload FFplay GPL
         uses: actions/upload-artifact@v2
-        if: failure()
         with:
           name: ffmpeg3
-          path: sandbox/ffmpeg.exe
+          path: sandbox/cross_compilers/mingw-w64-x86_64/x86_64-w64-mingw32/bin/ffplay.exe
