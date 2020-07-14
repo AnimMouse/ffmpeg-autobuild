@@ -24,9 +24,9 @@ jobs:
         run: mv -v ./ffmpeg-windows-build-helpers/* ./
           
       - name: Compile FFmpeg
-        run: ./cross_compile_ffmpeg.sh --ffmpeg-source-dir=./ffmpeg-source --gcc-cpu-count=2 --disable-nonfree=n --sandbox-ok=y --compiler-flavors=win64
+        run: ./cross_compile_ffmpeg.sh --ffmpeg-source-dir=$GITHUB_WORKSPACE/ffmpeg-source --gcc-cpu-count=2 --disable-nonfree=n --sandbox-ok=y --compiler-flavors=win64
           
-      - name: Upload FFmpeg with fdk aac
+      - name: Upload FFmpeg with FDK AAC
         uses: actions/upload-artifact@v2
         with:
           name: ffmpeg-win64-nonfree
@@ -38,7 +38,7 @@ jobs:
           name: ffmpeg-win64-gpl
           path: sandbox/cross_compilers/mingw-w64-x86_64/x86_64-w64-mingw32/bin/ffmpeg.exe
           
-      - name: Upload FFplay with fdk aac
+      - name: Upload FFplay with FDK AAC
         uses: actions/upload-artifact@v2
         with:
           name: ffplay-win64-nonfree
