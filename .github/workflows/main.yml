@@ -47,5 +47,5 @@ jobs:
       - name: Upload FFplay GPL
         uses: actions/upload-artifact@v2
         with:
-          name: ffmpeg3
+          name: ffplay-win64-gpl
           path: sandbox/cross_compilers/mingw-w64-x86_64/x86_64-w64-mingw32/bin/ffplay.exe
