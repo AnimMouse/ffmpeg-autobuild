@@ -1,4 +1,4 @@
-name: Build FFmpeg
+name: Build latest FFmpeg
 on:
   push:
     branches:
@@ -24,28 +24,52 @@ jobs:
         run: mv -v ./ffmpeg-windows-build-helpers/* ./
           
       - name: Compile FFmpeg
-        run: ./cross_compile_ffmpeg.sh --gcc-cpu-count=2 --disable-nonfree=n --sandbox-ok=y --compiler-flavors=multi
+        run: ./cross_compile_ffmpeg.sh --ffmpeg-source-dir=$GITHUB_WORKSPACE/ffmpeg-source --gcc-cpu-count=2 --disable-nonfree=n --sandbox-ok=y --compiler-flavors=win64
           
       - name: Upload FFmpeg with FDK AAC
         uses: actions/upload-artifact@v2
         with:
           name: ffmpeg-win64-nonfree
-          path: sandbox/win64/ffmpeg_git_with_fdk_aac/ffmpeg.exe
+          path: ffmpeg-source/ffmpeg.exe
           
       - name: Upload FFmpeg GPL
         uses: actions/upload-artifact@v2
         with:
           name: ffmpeg-win64-gpl
-          path: sandbox/cross_compilers/mingw-w64-x86_64/x86_64-w64-mingw32/bin/ffmpeg.exe
+          path: ffmpeg-source/bin/ffmpeg.exe
           
       - name: Upload FFplay with FDK AAC
         uses: actions/upload-artifact@v2
         with:
           name: ffplay-win64-nonfree
-          path: sandbox/win64/ffmpeg_git_with_fdk_aac/ffplay.exe
+          path: ffmpeg-source/ffplay.exe
           
       - name: Upload FFplay GPL
         uses: actions/upload-artifact@v2
         with:
           name: ffplay-win64-gpl
-          path: sandbox/cross_compilers/mingw-w64-x86_64/x86_64-w64-mingw32/bin/ffplay.exe
+          path: ffmpeg-source/bin/ffplay.exe
+          
+      - name: Upload x264
+        uses: actions/upload-artifact@v2
+        with:
+          name: x264-win64
+          path: sandbox/cross_compilers/mingw-w64-x86_64/x86_64-w64-mingw32/bin/x264.exe
+          
+      - name: Upload x264 all bitdepth
+        uses: actions/upload-artifact@v2
+        with:
+          name: x264-win64-all-bitdepth
+          path: sandbox/win64/x264_all_bitdepth/x264.exe
+          
+      - name: Upload x265
+        uses: actions/upload-artifact@v2
+        with:
+          name: x265-win64
+          path: sandbox/cross_compilers/mingw-w64-x86_64/x86_64-w64-mingw32/bin/x265.exe
+          
+      - name: Upload x265 all bitdepth
+        uses: actions/upload-artifact@v2
+        with:
+          name: x265-win64-all-bitdepth
+          path: sandbox/win64/x265_all_bitdepth/8bit/x265.exe
