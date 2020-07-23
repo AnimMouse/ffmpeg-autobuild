@@ -1,0 +1,170 @@
+name: Build FFmpeg on push
+on:
+  push:
+    branches:
+      - master
+      
+jobs:
+  build:
+    runs-on: ubuntu-18.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          submodules: true
+          fetch-depth: 1
+          
+      - name: Install dependencies
+        run: ./dependencies.sh
+        
+      - name: Move ffmpeg-windows-build-helpers
+        run: mv -v ./ffmpeg-windows-build-helpers/* ./
+          
+      - name: Compile FFmpeg using ffmpeg-windows-build-helpers
+        run: ./cross_compile_ffmpeg.sh --ffmpeg-source-dir=$GITHUB_WORKSPACE/ffmpeg-source --gcc-cpu-count=2 --disable-nonfree=n --sandbox-ok=y --compiler-flavors=win64 # multi builds does not currently work on source dir
+          
+      - name: Upload FFmpeg win64 with FDK AAC
+        uses: actions/upload-artifact@v2
+        with:
+          name: ffmpeg-win64-nonfree
+          path: ffmpeg-source/ffmpeg.exe
+          
+      - name: Upload FFmpeg win64 GPL
+        uses: actions/upload-artifact@v2
+        with:
+          name: ffmpeg-win64-gpl
+          path: ffmpeg-source/bin/ffmpeg.exe
+          
+      - name: Upload FFplay win64 with FDK AAC
+        uses: actions/upload-artifact@v2
+        with:
+          name: ffplay-win64-nonfree
+          path: ffmpeg-source/ffplay.exe
+          
+      - name: Upload FFplay win64 GPL
+        uses: actions/upload-artifact@v2
+        with:
+          name: ffplay-win64-gpl
+          path: ffmpeg-source/bin/ffplay.exe
+          
+      - name: Upload x264 win64
+        uses: actions/upload-artifact@v2
+        with:
+          name: x264-win64
+          path: sandbox/cross_compilers/mingw-w64-x86_64/x86_64-w64-mingw32/bin/x264.exe
+          
+      - name: Upload x264 win64 all bitdepth
+        uses: actions/upload-artifact@v2
+        with:
+          name: x264-win64-all-bitdepth
+          path: sandbox/win64/x264_all_bitdepth/x264.exe
+          
+      - name: Upload x265 win64
+        uses: actions/upload-artifact@v2
+        with:
+          name: x265-win64
+          path: sandbox/cross_compilers/mingw-w64-x86_64/x86_64-w64-mingw32/bin/x265.exe
+          
+      - name: Upload x265 win64 all bitdepth
+        uses: actions/upload-artifact@v2
+        with:
+          name: x265-win64-all-bitdepth
+          path: sandbox/win64/x265_all_bitdepth/8bit/x265.exe
+          
+  release:
+    needs: build
+    runs-on: ubuntu-20.04
+    steps:
+      - name: Download all builds
+        uses: actions/download-artifact@v2
+          
+      - name: Create Release
+        id: create-release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: "#${{ github.run_number }}"
+          release_name: "#${{ github.run_number }}"
+          draft: false
+          prerelease: false
+          
+      - name: Upload FFmpeg win64 with FDK AAC Release Asset
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create-release.outputs.upload_url }}
+          asset_path: ffmpeg-win64-nonfree/ffmpeg.exe
+          asset_name: ffmpeg-win64-nonfree.exe
+          asset_content_type: application/vnd.microsoft.portable-executable
+          
+      - name: Upload FFmpeg win64 GPL Release Asset
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create-release.outputs.upload_url }}
+          asset_path: ffmpeg-win64-gpl/ffmpeg.exe
+          asset_name: ffmpeg-win64-gpl.exe
+          asset_content_type: application/vnd.microsoft.portable-executable
+          
+      - name: Upload FFplay win64 with FDK AAC Release Asset
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create-release.outputs.upload_url }}
+          asset_path: ffplay-win64-nonfree/ffmpeg.exe
+          asset_name: ffplay-win64-nonfree.exe
+          asset_content_type: application/vnd.microsoft.portable-executable
+          
+      - name: Upload FFplay win64 GPL Release Asset
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create-release.outputs.upload_url }}
+          asset_path: ffplay-win64-gpl/ffmpeg.exe
+          asset_name: ffplay-win64-gpl.exe
+          asset_content_type: application/vnd.microsoft.portable-executable
+          
+      - name: Upload x264 win64 Release Asset
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create-release.outputs.upload_url }}
+          asset_path: x264-win64/x264.exe
+          asset_name: x264-win64.exe
+          asset_content_type: application/vnd.microsoft.portable-executable
+          
+      - name: Upload x264 win64 all bitdepth Release Asset
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create-release.outputs.upload_url }}
+          asset_path: x264-win64-all-bitdepth/x264.exe
+          asset_name: x264-win64-all-bitdepth.exe
+          asset_content_type: application/vnd.microsoft.portable-executable
+          
+      - name: Upload x265 win64 Release Asset
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create-release.outputs.upload_url }}
+          asset_path: x265-win64/x265.exe
+          asset_name: x265-win64.exe
+          asset_content_type: application/vnd.microsoft.portable-executable
+          
+      - name: Upload x265 win64 all bitdepth Release Asset
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create-release.outputs.upload_url }}
+          asset_path: x265-win64-all-bitdepth/x265.exe
+          asset_name: x265-win64-all-bitdepth.exe
+          asset_content_type: application/vnd.microsoft.portable-executable
