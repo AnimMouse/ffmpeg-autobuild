@@ -115,7 +115,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create-release.outputs.upload_url }}
-          asset_path: ffplay-win64-nonfree/ffmpeg.exe
+          asset_path: ffplay-win64-nonfree/ffplay.exe
           asset_name: ffplay-win64-nonfree.exe
           asset_content_type: application/vnd.microsoft.portable-executable
           
@@ -125,7 +125,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create-release.outputs.upload_url }}
-          asset_path: ffplay-win64-gpl/ffmpeg.exe
+          asset_path: ffplay-win64-gpl/ffplay.exe
           asset_name: ffplay-win64-gpl.exe
           asset_content_type: application/vnd.microsoft.portable-executable
           
