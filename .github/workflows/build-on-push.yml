@@ -23,13 +23,16 @@ jobs:
       - name: Cache sandbox
         uses: actions/cache@v2
         with:
-          path: |
-            sandbox
-            !sandbox/**/*.exe
-          key: ${{ runner.os }}-${{ github.event_name }}
+          path: sandbox
+          key: ${{ runner.os }}-sandbox
           
       - name: Compile FFmpeg using ffmpeg-windows-build-helpers
         run: ./cross_compile_ffmpeg.sh --ffmpeg-source-dir=$GITHUB_WORKSPACE/ffmpeg-source --gcc-cpu-count=2 --disable-nonfree=n --sandbox-ok=y --compiler-flavors=win64 # multi builds does not currently work on source dir
+        
+      - name: List sandbox files
+        run: |
+          cd sandbox
+          ls
         
       - name: Upload FFmpeg win64 with FDK AAC
         uses: actions/upload-artifact@v2
