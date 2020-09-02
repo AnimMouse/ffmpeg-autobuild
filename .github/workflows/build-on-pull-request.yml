@@ -26,8 +26,10 @@ jobs:
           path: |
             sandbox
             !sandbox/**/*.exe
-          key: sandbox-${{ github.run_number }}
-          restore-keys: sandbox-
+          key: sandbox-pull_request-${{ github.run_number }}
+          restore-keys: |
+            sandbox-pull_request-
+            sandbox-
           
       - name: Compile FFmpeg using ffmpeg-windows-build-helpers
         run: ./cross_compile_ffmpeg.sh --ffmpeg-source-dir=$GITHUB_WORKSPACE/ffmpeg-source --gcc-cpu-count=2 --disable-nonfree=n --sandbox-ok=y --compiler-flavors=win64
