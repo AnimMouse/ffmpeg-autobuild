@@ -23,35 +23,31 @@ jobs:
       - name: Compile FFmpeg using ffmpeg-windows-build-helpers
         run: ./cross_compile_ffmpeg.sh --ffmpeg-source-dir=$GITHUB_WORKSPACE/ffmpeg-source --gcc-cpu-count=2 --disable-nonfree=n --sandbox-ok=y --compiler-flavors=win64
         
-      - name: Upload FFmpeg win64 with FDK AAC
+      - name: 7Zip FFmpeg win64 nonfree
+        working-directory: ffmpeg-source
+        run: 7z a -mx9 ffmpeg-win64-nonfree.7z ffmpeg.exe ffprobe.exe ffplay.exe
+        
+      - name: 7Zip FFmpeg win64 GPL
+        working-directory: ffmpeg-source/bin
+        run: 7z a -mx9 ffmpeg-win64-gpl.7z ffmpeg.exe ffprobe.exe ffplay.exe
+        
+      - name: Upload FFmpeg win64 nonfree
         uses: actions/upload-artifact@v2
         with:
           name: ffmpeg-win64-nonfree
-          path: ffmpeg-source/ffmpeg.exe
+          path: ffmpeg-source/ffmpeg-win64-nonfree.7z
           
       - name: Upload FFmpeg win64 GPL
         uses: actions/upload-artifact@v2
         with:
           name: ffmpeg-win64-gpl
-          path: ffmpeg-source/bin/ffmpeg.exe
-          
-      - name: Upload FFplay win64 with FDK AAC
-        uses: actions/upload-artifact@v2
-        with:
-          name: ffplay-win64-nonfree
-          path: ffmpeg-source/ffplay.exe
-          
-      - name: Upload FFplay win64 GPL
-        uses: actions/upload-artifact@v2
-        with:
-          name: ffplay-win64-gpl
-          path: ffmpeg-source/bin/ffplay.exe
+          path: ffmpeg-source/bin/ffmpeg-win64-gpl.7z
           
       - name: Upload x264 win64
         uses: actions/upload-artifact@v2
         with:
           name: x264-win64
-          path: sandbox/cross_compilers/mingw-w64-x86_64/x86_64-w64-mingw32/bin/x264.exe
+          path: sandbox/win64/x264/x264.exe
           
       - name: Upload x264 win64 all bitdepth
         uses: actions/upload-artifact@v2
@@ -63,7 +59,7 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: x265-win64
-          path: sandbox/cross_compilers/mingw-w64-x86_64/x86_64-w64-mingw32/bin/x265.exe
+          path: sandbox/win64/x265/x265.exe
           
       - name: Upload x265 win64 all bitdepth
         uses: actions/upload-artifact@v2
@@ -89,15 +85,15 @@ jobs:
           draft: false
           prerelease: true
           
-      - name: Upload FFmpeg win64 with FDK AAC Release Asset
+      - name: Upload FFmpeg win64 nonfree Release Asset
         uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create-release.outputs.upload_url }}
-          asset_path: ffmpeg-win64-nonfree/ffmpeg.exe
-          asset_name: ffmpeg-win64-nonfree.exe
-          asset_content_type: application/vnd.microsoft.portable-executable
+          asset_path: ffmpeg-win64-nonfree/ffmpeg-win64-nonfree.7z
+          asset_name: ffmpeg-win64-nonfree.7z
+          asset_content_type: application/x-7z-compressed
           
       - name: Upload FFmpeg win64 GPL Release Asset
         uses: actions/upload-release-asset@v1
@@ -105,29 +101,9 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create-release.outputs.upload_url }}
-          asset_path: ffmpeg-win64-gpl/ffmpeg.exe
-          asset_name: ffmpeg-win64-gpl.exe
-          asset_content_type: application/vnd.microsoft.portable-executable
-          
-      - name: Upload FFplay win64 with FDK AAC Release Asset
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.create-release.outputs.upload_url }}
-          asset_path: ffplay-win64-nonfree/ffplay.exe
-          asset_name: ffplay-win64-nonfree.exe
-          asset_content_type: application/vnd.microsoft.portable-executable
-          
-      - name: Upload FFplay win64 GPL Release Asset
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.create-release.outputs.upload_url }}
-          asset_path: ffplay-win64-gpl/ffplay.exe
-          asset_name: ffplay-win64-gpl.exe
-          asset_content_type: application/vnd.microsoft.portable-executable
+          asset_path: ffmpeg-win64-gpl/ffmpeg-win64-gpl.7z
+          asset_name: ffmpeg-win64-gpl.7z
+          asset_content_type: application/x-7z-compressed
           
       - name: Upload x264 win64 Release Asset
         uses: actions/upload-release-asset@v1
