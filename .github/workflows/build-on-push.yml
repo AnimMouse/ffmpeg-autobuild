@@ -23,11 +23,11 @@ jobs:
       - name: Compile FFmpeg using ffmpeg-windows-build-helpers
         run: ./cross_compile_ffmpeg.sh --ffmpeg-source-dir=$GITHUB_WORKSPACE/ffmpeg-source --gcc-cpu-count=2 --disable-nonfree=n --sandbox-ok=y --compiler-flavors=win64
         
-      - name: 7Zip FFmpeg win64 nonfree
+      - name: 7-Zip FFmpeg win64 nonfree
         working-directory: ffmpeg-source
         run: 7z a -mx9 ffmpeg-win64-nonfree.7z ffmpeg.exe ffprobe.exe ffplay.exe
         
-      - name: 7Zip FFmpeg win64 GPL
+      - name: 7-Zip FFmpeg win64 GPL
         working-directory: ffmpeg-source/bin
         run: 7z a -mx9 ffmpeg-win64-gpl.7z ffmpeg.exe ffprobe.exe ffplay.exe
         
@@ -47,7 +47,7 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: x264-win64
-          path: sandbox/win64/x264/x264.exe
+          path: sandbox/cross_compilers/mingw-w64-x86_64/x86_64-w64-mingw32/bin/x264.exe
           
       - name: Upload x264 win64 all bitdepth
         uses: actions/upload-artifact@v2
@@ -59,7 +59,7 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: x265-win64
-          path: sandbox/win64/x265/x265.exe
+          path: sandbox/cross_compilers/mingw-w64-x86_64/x86_64-w64-mingw32/bin/x265.exe
           
       - name: Upload x265 win64 all bitdepth
         uses: actions/upload-artifact@v2
