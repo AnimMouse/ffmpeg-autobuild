@@ -7,6 +7,8 @@
 
 [Downloads](https://github.com/AnimMouse/ffmpeg-autobuild/releases)
 
+ffmpeg, ffprobe, and ffplay are included.
+
 GPL and nonfree (with FDK AAC & DeckLink) included.
 
 Powered by [ffmpeg-windows-build-helpers](https://github.com/rdp/ffmpeg-windows-build-helpers) script to cross compile for Windows on Linux.
