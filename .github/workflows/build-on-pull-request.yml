@@ -27,21 +27,11 @@ jobs:
         working-directory: ffmpeg-source
         run: 7z a -mx9 ffmpeg-win64-nonfree.7z ffmpeg.exe ffprobe.exe ffplay.exe
         
-      - name: 7-Zip FFmpeg win64 GPL
-        working-directory: ffmpeg-source/bin
-        run: 7z a -mx9 ffmpeg-win64-gpl.7z ffmpeg.exe ffprobe.exe ffplay.exe
-        
       - name: Upload FFmpeg win64 nonfree
         uses: actions/upload-artifact@v2
         with:
           name: ffmpeg-win64-nonfree
           path: ffmpeg-source/ffmpeg-win64-nonfree.7z
-          
-      - name: Upload FFmpeg win64 GPL
-        uses: actions/upload-artifact@v2
-        with:
-          name: ffmpeg-win64-gpl
-          path: ffmpeg-source/bin/ffmpeg-win64-gpl.7z
           
       - name: Upload x264 win64
         uses: actions/upload-artifact@v2
@@ -93,16 +83,6 @@ jobs:
           upload_url: ${{ steps.create-release.outputs.upload_url }}
           asset_path: ffmpeg-win64-nonfree/ffmpeg-win64-nonfree.7z
           asset_name: ffmpeg-win64-nonfree.7z
-          asset_content_type: application/x-7z-compressed
-          
-      - name: Upload FFmpeg win64 GPL Release Asset
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.create-release.outputs.upload_url }}
-          asset_path: ffmpeg-win64-gpl/ffmpeg-win64-gpl.7z
-          asset_name: ffmpeg-win64-gpl.7z
           asset_content_type: application/x-7z-compressed
           
       - name: Upload x264 win64 Release Asset
