@@ -25,37 +25,13 @@ jobs:
         
       - name: 7-Zip FFmpeg win64 nonfree
         working-directory: ffmpeg-source
-        run: 7z a -mx9 ffmpeg-win64-nonfree.7z ffmpeg.exe ffprobe.exe ffplay.exe
+        run: 7z a ffmpeg-win64-nonfree.7z ffmpeg.exe ffprobe.exe ffplay.exe -mx=9
         
       - name: Upload FFmpeg win64 nonfree
         uses: actions/upload-artifact@v2
         with:
           name: ffmpeg-win64-nonfree
           path: ffmpeg-source/ffmpeg-win64-nonfree.7z
-          
-      - name: Upload x264 win64
-        uses: actions/upload-artifact@v2
-        with:
-          name: x264-win64
-          path: sandbox/cross_compilers/mingw-w64-x86_64/x86_64-w64-mingw32/bin/x264.exe
-          
-      - name: Upload x264 win64 all bitdepth
-        uses: actions/upload-artifact@v2
-        with:
-          name: x264-win64-all-bitdepth
-          path: sandbox/win64/x264_all_bitdepth/x264.exe
-          
-      - name: Upload x265 win64
-        uses: actions/upload-artifact@v2
-        with:
-          name: x265-win64
-          path: sandbox/cross_compilers/mingw-w64-x86_64/x86_64-w64-mingw32/bin/x265.exe
-          
-      - name: Upload x265 win64 all bitdepth
-        uses: actions/upload-artifact@v2
-        with:
-          name: x265-win64-all-bitdepth
-          path: sandbox/win64/x265_all_bitdepth/8bit/x265.exe
           
   release:
     needs: build
@@ -84,43 +60,3 @@ jobs:
           asset_path: ffmpeg-win64-nonfree/ffmpeg-win64-nonfree.7z
           asset_name: ffmpeg-win64-nonfree.7z
           asset_content_type: application/x-7z-compressed
-          
-      - name: Upload x264 win64 Release Asset
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.create-release.outputs.upload_url }}
-          asset_path: x264-win64/x264.exe
-          asset_name: x264-win64.exe
-          asset_content_type: application/vnd.microsoft.portable-executable
-          
-      - name: Upload x264 win64 all bitdepth Release Asset
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.create-release.outputs.upload_url }}
-          asset_path: x264-win64-all-bitdepth/x264.exe
-          asset_name: x264-win64-all-bitdepth.exe
-          asset_content_type: application/vnd.microsoft.portable-executable
-          
-      - name: Upload x265 win64 Release Asset
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.create-release.outputs.upload_url }}
-          asset_path: x265-win64/x265.exe
-          asset_name: x265-win64.exe
-          asset_content_type: application/vnd.microsoft.portable-executable
-          
-      - name: Upload x265 win64 all bitdepth Release Asset
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.create-release.outputs.upload_url }}
-          asset_path: x265-win64-all-bitdepth/x265.exe
-          asset_name: x265-win64-all-bitdepth.exe
-          asset_content_type: application/vnd.microsoft.portable-executable
