@@ -1,0 +1,62 @@
+name: Build FFmpeg on dispatch
+on:
+  workflow_dispatch:
+    branches:
+      - master
+      
+jobs:
+  build:
+    runs-on: ubuntu-20.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          submodules: true
+          fetch-depth: 1
+          
+      - name: Install dependencies
+        run: ./dependencies.sh
+        
+      - name: Move ffmpeg-windows-build-helpers
+        run: mv -v ./ffmpeg-windows-build-helpers/* ./
+        
+      - name: Compile FFmpeg using ffmpeg-windows-build-helpers
+        run: ./cross_compile_ffmpeg.sh --ffmpeg-source-dir=$GITHUB_WORKSPACE/ffmpeg-source --gcc-cpu-count=2 --disable-nonfree=n --sandbox-ok=y --compiler-flavors=win64
+        
+      - name: 7-Zip FFmpeg win64 nonfree
+        working-directory: ffmpeg-source
+        run: 7z a ffmpeg-win64-nonfree.7z ffmpeg.exe ffprobe.exe ffplay.exe -mx=9
+        
+      - name: Upload FFmpeg win64 nonfree
+        uses: actions/upload-artifact@v2
+        with:
+          name: ffmpeg-win64-nonfree
+          path: ffmpeg-source/ffmpeg-win64-nonfree.7z
+          
+  release:
+    needs: build
+    runs-on: ubuntu-20.04
+    steps:
+      - name: Download all builds
+        uses: actions/download-artifact@v2
+        
+      - name: Create Release
+        id: create-release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: "#${{ github.run_number }}"
+          release_name: "#${{ github.run_number }}"
+          draft: false
+          prerelease: false
+          
+      - name: Upload FFmpeg win64 nonfree Release Asset
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create-release.outputs.upload_url }}
+          asset_path: ffmpeg-win64-nonfree/ffmpeg-win64-nonfree.7z
+          asset_name: ffmpeg-win64-nonfree.7z
+          asset_content_type: application/x-7z-compressed
