@@ -2,7 +2,7 @@ name: Build FFmpeg on push
 on:
   push:
     branches:
-      - master
+      - main
       
 jobs:
   build:
@@ -33,6 +33,17 @@ jobs:
           name: ffmpeg-win64-nonfree
           path: ffmpeg-source/ffmpeg-win64-nonfree.7z
           
+      - name: Get current FFmpeg git commit SHA & date
+        id: git-sha-date
+        working-directory: ffmpeg-source
+        run: |
+          echo "::set-output name=git-sha::$(git rev-parse --short HEAD)"
+          echo "::set-output name=git-date::$(git log -1 --format=%ci)"
+          
+    outputs:
+      git-sha: ${{ steps.git-sha-date.outputs.git-sha }}
+      git-date: ${{ steps.git-sha-date.outputs.git-date }}
+      
   release:
     needs: build
     runs-on: ubuntu-20.04
@@ -40,23 +51,22 @@ jobs:
       - name: Download all builds
         uses: actions/download-artifact@v2
         
-      - name: Create Release
-        id: create-release
-        uses: actions/create-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          tag_name: "#${{ github.run_number }}"
-          release_name: "#${{ github.run_number }}"
-          draft: false
-          prerelease: false
+      - name: Rename archive to include git commit SHA
+        working-directory: ffmpeg-win64-nonfree
+        run: mv ffmpeg-win64-nonfree.7z ffmpeg-${{needs.build.outputs.git-sha}}-win64-nonfree.7z
+        
+      - name: Get current date & time
+        id: date-time
+        run: |
+          echo "::set-output name=date-time::$(date +'%Y-%m-%d %H:%M')"
+          echo "::set-output name=date-time-tag::$(date +'%Y-%m-%d-%H-%M')"
           
-      - name: Upload FFmpeg win64 nonfree Release Asset
-        uses: actions/upload-release-asset@v1
+      - name: Release
+        uses: softprops/action-gh-release@v1
+        with:
+          name: ${{ steps.date-time.outputs.date-time }}
+          tag_name: ${{ steps.date-time.outputs.date-time-tag }}
+          body: FFmpeg nonfree git-${{ needs.build.outputs.git-sha }} in ${{ needs.build.outputs.git-date }} built on ${{ steps.date-time.outputs.date-time }}
+          files: ffmpeg-win64-nonfree/ffmpeg-${{ needs.build.outputs.git-sha }}-win64-nonfree.7z
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.create-release.outputs.upload_url }}
-          asset_path: ffmpeg-win64-nonfree/ffmpeg-win64-nonfree.7z
-          asset_name: ffmpeg-win64-nonfree.7z
-          asset_content_type: application/x-7z-compressed
