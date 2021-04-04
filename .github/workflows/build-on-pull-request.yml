@@ -3,6 +3,8 @@ on:
   pull_request:
     branches:
       - main
+    paths-ignore:
+      - README.md
       
 jobs:
   build:
@@ -12,27 +14,10 @@ jobs:
         uses: actions/checkout@v2
         with:
           submodules: true
-          fetch-depth: 1
           
       - name: Install dependencies
         run: ./dependencies.sh
         
-      - name: Move ffmpeg-windows-build-helpers
-        run: mv -v ./ffmpeg-windows-build-helpers/* ./
-        
-      - name: Compile FFmpeg using ffmpeg-windows-build-helpers
-        run: ./cross_compile_ffmpeg.sh --ffmpeg-source-dir=$GITHUB_WORKSPACE/ffmpeg-source --gcc-cpu-count=2 --disable-nonfree=n --sandbox-ok=y --compiler-flavors=win64
-        
-      - name: 7-Zip FFmpeg win64 nonfree
-        working-directory: ffmpeg-source
-        run: 7z a ffmpeg-win64-nonfree.7z ffmpeg.exe ffprobe.exe ffplay.exe -mx=9
-        
-      - name: Upload FFmpeg win64 nonfree
-        uses: actions/upload-artifact@v2
-        with:
-          name: ffmpeg-win64-nonfree
-          path: ffmpeg-source/ffmpeg-win64-nonfree.7z
-          
       - name: Get current FFmpeg git commit SHA & date
         id: git-sha-date
         working-directory: ffmpeg-source
@@ -40,34 +25,93 @@ jobs:
           echo "::set-output name=git-sha::$(git rev-parse --short HEAD)"
           echo "::set-output name=git-date::$(git log -1 --format=%ci)"
           
+      - name: Get current ffmpeg-windows-build-helpers git commit SHA
+        id: helper-git-sha
+        working-directory: ffmpeg-windows-build-helpers
+        run: echo "::set-output name=git-sha::$(git rev-parse --short HEAD)"
+        
+      - name: Move ffmpeg-windows-build-helpers
+        run: mv -v ./ffmpeg-windows-build-helpers/* ./
+        
+      - name: Get current date & time before build
+        id: date-time-before
+        run: echo "::set-output name=date-time::$(date +'%Y-%m-%d %H:%M')"
+        
+      - name: Compile FFmpeg using ffmpeg-windows-build-helpers
+        run: ./cross_compile_ffmpeg.sh --ffmpeg-source-dir=$GITHUB_WORKSPACE/ffmpeg-source --gcc-cpu-count=2 --disable-nonfree=n --sandbox-ok=y --compiler-flavors=win64
+        
+      - name: Get current date & time after build
+        id: date-time-after
+        run: |
+          echo "::set-output name=date-time::$(date +'%Y-%m-%d %H:%M')"
+          echo "::set-output name=date-time-tag::$(date +'%Y-%m-%d-%H-%M')"
+          
+      - name: Upload FFmpeg win64 nonfree
+        uses: actions/upload-artifact@v2
+        with:
+          name: ffmpeg-${{ steps.git-sha-date.outputs.git-sha }}-win64-nonfree
+          path: ffmpeg-source/ffmpeg.exe
+          
+      - name: Upload FFprobe win64 nonfree
+        uses: actions/upload-artifact@v2
+        with:
+          name: ffprobe-${{ steps.git-sha-date.outputs.git-sha }}-win64-nonfree
+          path: ffmpeg-source/ffprobe.exe
+          
+      - name: Upload FFplay win64 nonfree
+        uses: actions/upload-artifact@v2
+        with:
+          name: ffplay-${{ steps.git-sha-date.outputs.git-sha }}-win64-nonfree
+          path: ffmpeg-source/ffplay.exe
+          
     outputs:
+      date-time-before: ${{ steps.date-time-before.outputs.date-time }}
+      date-time-after: ${{ steps.date-time-after.outputs.date-time }}
+      date-time-after-tag: ${{ steps.date-time-after.outputs.date-time-tag }}
       git-sha: ${{ steps.git-sha-date.outputs.git-sha }}
       git-date: ${{ steps.git-sha-date.outputs.git-date }}
+      helper-git-sha: ${{ steps.helper-git-sha.outputs.git-sha }}
       
-  release:
+  archive:
     needs: build
     runs-on: ubuntu-20.04
     steps:
       - name: Download all builds
         uses: actions/download-artifact@v2
         
-      - name: Rename archive to include git commit SHA
-        working-directory: ffmpeg-win64-nonfree
-        run: mv ffmpeg-win64-nonfree.7z ffmpeg-${{needs.build.outputs.git-sha}}-win64-nonfree.7z
-        
-      - name: Get current date & time
-        id: date-time
+      - name: Move FFmpeg builds
         run: |
-          echo "::set-output name=date-time::$(date +'%Y-%m-%d %H:%M')"
-          echo "::set-output name=date-time-tag::$(date +'%Y-%m-%d-%H-%M')"
+          mv -v ./ffmpeg-${{needs.build.outputs.git-sha}}-win64-nonfree/ffmpeg.exe ./
+          mv -v ./ffprobe-${{needs.build.outputs.git-sha}}-win64-nonfree/ffprobe.exe ./
+          mv -v ./ffplay-${{needs.build.outputs.git-sha}}-win64-nonfree/ffplay.exe ./
+          
+      - name: 7-Zip FFmpeg win64 nonfree
+        run: 7z a ffmpeg-${{needs.build.outputs.git-sha}}-win64-nonfree.7z ffmpeg.exe ffprobe.exe ffplay.exe -mx9
+        
+      - name: Upload FFmpeg archive win64 nonfree
+        uses: actions/upload-artifact@v2
+        with:
+          name: ffmpeg-archive-${{ needs.build.outputs.git-sha }}-win64-nonfree
+          path: ffmpeg-${{ needs.build.outputs.git-sha }}-win64-nonfree.7z
+          
+  release:
+    needs: [build, archive]
+    runs-on: ubuntu-20.04
+    steps:
+      - name: Download FFmpeg archive
+        uses: actions/download-artifact@v2
+        with:
+          name: ffmpeg-archive-${{ needs.build.outputs.git-sha }}-win64-nonfree
           
       - name: Release
         uses: softprops/action-gh-release@v1
         with:
-          name: Auto ${{ steps.date-time.outputs.date-time }}
-          tag_name: a-${{ steps.date-time.outputs.date-time-tag }}
+          name: Auto ${{ needs.build.outputs.date-time-after }} ${{ needs.build.outputs.git-sha }}
+          tag_name: a-${{ needs.build.outputs.date-time-after-tag }}
           prerelease: true
-          body: FFmpeg nonfree git-${{ needs.build.outputs.git-sha }} in ${{ needs.build.outputs.git-date }} built on ${{ steps.date-time.outputs.date-time }}
+          body: |
+            FFmpeg nonfree git-${{ needs.build.outputs.git-sha }} in ${{ needs.build.outputs.git-date }} built on ${{ needs.build.outputs.date-time-after }} started at ${{ needs.build.outputs.date-time-before }}
+            Using ffmpeg-windows-build-helpers git-${{ needs.build.outputs.helper-git-sha }}
           files: ffmpeg-win64-nonfree/ffmpeg-${{ needs.build.outputs.git-sha }}-win64-nonfree.7z
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
