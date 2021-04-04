@@ -109,12 +109,12 @@ jobs:
       - name: Download FFmpeg archive win64
         uses: actions/download-artifact@v2
         with:
-          name: ffmpeg-archive-${{ needs.build.outputs.git-sha }}-win64-gpl
+          name: ffmpeg-archive-${{ needs.build.outputs.git-sha }}-win64-nonfree
           
       - name: Download FFmpeg archive win32
         uses: actions/download-artifact@v2
         with:
-          name: ffmpeg-archive-${{ needs.build.outputs.git-sha }}-win32-gpl
+          name: ffmpeg-archive-${{ needs.build.outputs.git-sha }}-win32-nonfree
           
       - name: Release
         uses: softprops/action-gh-release@v1
@@ -125,8 +125,8 @@ jobs:
             FFmpeg nonfree git-${{ needs.build.outputs.git-sha }} in ${{ needs.build.outputs.git-date }} built on ${{ needs.build.outputs.date-time-after }} started at ${{ needs.build.outputs.date-time-before }}
             Using ffmpeg-windows-build-helpers git-${{ needs.build.outputs.helper-git-sha }}
           files: |
-            ffmpeg-${{ needs.build.outputs.git-sha }}-win64-gpl.7z
-            ffmpeg-${{ needs.build.outputs.git-sha }}-win32-gpl.7z
+            ffmpeg-${{ needs.build.outputs.git-sha }}-win64-nonfree.7z
+            ffmpeg-${{ needs.build.outputs.git-sha }}-win32-nonfree.7z
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           
