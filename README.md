@@ -3,7 +3,7 @@
 ![Build FFmpeg on push](https://github.com/AnimMouse/ffmpeg-autobuild/workflows/Build%20FFmpeg%20on%20push/badge.svg)
 ![Build FFmpeg on pull request](https://github.com/AnimMouse/ffmpeg-autobuild/workflows/Build%20FFmpeg%20on%20pull%20request/badge.svg)
 
-[FFmpeg](https://ffmpeg.org/) latest nonfree git/snapshot/development/master builds with additional libraries/dependencies.
+[FFmpeg](https://ffmpeg.org/) latest nonfree git/snapshot/development/master/nightly builds with additional libraries/dependencies.
 
 [Downloads](https://github.com/AnimMouse/ffmpeg-autobuild/releases)
 
@@ -23,6 +23,6 @@ Uses [GitHub Actions](https://github.com/features/actions) to automatically comp
 
 Uses [Dependabot](https://dependabot.com/) to automatically update submodules.
 
-For latest bug fixes, new improvements, cutting edge, use git/snapshot/development builds.
+For latest bug fixes, new improvements, cutting edge, use git/snapshot/development/master/nightly builds.
 
 For stable release builds for Windows, goto [ffmpeg-stable-autobuild](https://github.com/AnimMouse/ffmpeg-stable-autobuild)
