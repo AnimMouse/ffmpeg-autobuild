@@ -129,3 +129,14 @@ jobs:
             ffmpeg-${{ needs.build.outputs.git-sha }}-win32-gpl.7z
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          
+  delete_old:
+    runs-on: ubuntu-20.04
+    steps:
+      - name: Delete older pre-releases
+        uses: dev-drprasad/delete-older-releases@v0.2.0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          keep_latest: 1
+          delete_tag_pattern: a
