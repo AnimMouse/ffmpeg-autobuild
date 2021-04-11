@@ -134,6 +134,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           
   delete_old:
+    name: Delete older pre-releases
     runs-on: ubuntu-20.04
     steps:
       - name: Delete older pre-releases
@@ -142,4 +143,5 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           keep_latest: 1
+          delete_tags: true
           delete_tag_pattern: a

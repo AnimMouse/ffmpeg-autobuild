@@ -6,12 +6,11 @@ on:
     paths-ignore:
       - README.md
       - .github/dependabot.yml
-    types: [labeled]
-    
+      
 jobs:
   build:
     runs-on: ubuntu-20.04
-    if: contains(github.event.pull_request.labels.*.name, 'dependencies')
+    if: contains(github.event.pull_request.labels.*.name, 'dependencies') || contains(github.event.pull_request.labels.*.name, 'safe to test')
     strategy:
       matrix:
         os: [win64, win32]
