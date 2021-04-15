@@ -89,14 +89,20 @@ jobs:
         os: [win64, win32]
         
     steps:
-      - name: Download all builds
+      - name: Download FFmpeg ${{ matrix.os }} nonfree
         uses: actions/download-artifact@v2
-        
-      - name: Move FFmpeg builds
-        run: |
-          mv -v ./ffmpeg-${{needs.build.outputs.git-sha}}-${{matrix.os}}-nonfree/ffmpeg.exe ./
-          mv -v ./ffprobe-${{needs.build.outputs.git-sha}}-${{matrix.os}}-nonfree/ffprobe.exe ./
-          mv -v ./ffplay-${{needs.build.outputs.git-sha}}-${{matrix.os}}-nonfree/ffplay.exe ./
+        with:
+          name: ffmpeg-${{ needs.build.outputs.git-sha }}-${{ matrix.os }}-nonfree
+          
+      - name: Download FFprobe ${{ matrix.os }} nonfree
+        uses: actions/download-artifact@v2
+        with:
+          name: ffprobe-${{ needs.build.outputs.git-sha }}-${{ matrix.os }}-nonfree
+          
+      - name: Download FFplay ${{ matrix.os }} nonfree
+        uses: actions/download-artifact@v2
+        with:
+          name: ffplay-${{ needs.build.outputs.git-sha }}-${{ matrix.os }}-nonfree
           
       - name: 7-Zip FFmpeg ${{ matrix.os }} nonfree
         run: 7z a ffmpeg-${{needs.build.outputs.git-sha}}-${{matrix.os}}-nonfree.7z ffmpeg.exe ffprobe.exe ffplay.exe -mx9
