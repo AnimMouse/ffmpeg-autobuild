@@ -7,9 +7,14 @@
 
 [Downloads](https://github.com/AnimMouse/ffmpeg-autobuild/releases)
 
-Schedule of release builds: Weekly or Every time [ffmpeg-windows-build-helpers](https://github.com/rdp/ffmpeg-windows-build-helpers) updates or I updated the repository.
+#### Schedule
 
-Schedule of pre-release builds: Every 9:00 AM GMT+8 daily except weekends.
+Release builds: Weekly or Every time [ffmpeg-windows-build-helpers](https://github.com/rdp/ffmpeg-windows-build-helpers) updates or I updated the repository.\
+Pre-release builds: Every 9:00 AM GMT+8 daily except weekends.
+
+#### Release Retention Policy
+Release builds are kept for two years.\
+Last 1 pre-release build are kept every time a release build are released.
 
 ffmpeg, ffprobe, and ffplay are included.
 
