@@ -58,19 +58,19 @@ jobs:
       - name: Upload FFmpeg ${{ matrix.os }} nonfree
         uses: actions/upload-artifact@v2
         with:
-          name: ffmpeg-${{ steps.git-sha-date.outputs.git-sha }}-${{ matrix.os }}-nonfree
+          name: ffmpeg-${{ steps.git-sha-date.outputs.git-sha }}-${{ steps.helper-git-sha.outputs.git-sha }}-${{ matrix.os }}-nonfree
           path: ffmpeg-source/ffmpeg.exe
           
       - name: Upload FFprobe ${{ matrix.os }} nonfree
         uses: actions/upload-artifact@v2
         with:
-          name: ffprobe-${{ steps.git-sha-date.outputs.git-sha }}-${{ matrix.os }}-nonfree
+          name: ffprobe-${{ steps.git-sha-date.outputs.git-sha }}-${{ steps.helper-git-sha.outputs.git-sha }}-${{ matrix.os }}-nonfree
           path: ffmpeg-source/ffprobe.exe
           
       - name: Upload FFplay ${{ matrix.os }} nonfree
         uses: actions/upload-artifact@v2
         with:
-          name: ffplay-${{ steps.git-sha-date.outputs.git-sha }}-${{ matrix.os }}-nonfree
+          name: ffplay-${{ steps.git-sha-date.outputs.git-sha }}-${{ steps.helper-git-sha.outputs.git-sha }}-${{ matrix.os }}-nonfree
           path: ffmpeg-source/ffplay.exe
           
     outputs:
@@ -92,26 +92,26 @@ jobs:
       - name: Download FFmpeg ${{ matrix.os }} nonfree
         uses: actions/download-artifact@v2
         with:
-          name: ffmpeg-${{ needs.build.outputs.git-sha }}-${{ matrix.os }}-nonfree
+          name: ffmpeg-${{ needs.build.outputs.git-sha }}-${{ needs.build.outputs.helper-git-sha }}-${{ matrix.os }}-nonfree
           
       - name: Download FFprobe ${{ matrix.os }} nonfree
         uses: actions/download-artifact@v2
         with:
-          name: ffprobe-${{ needs.build.outputs.git-sha }}-${{ matrix.os }}-nonfree
+          name: ffprobe-${{ needs.build.outputs.git-sha }}-${{ needs.build.outputs.helper-git-sha }}-${{ matrix.os }}-nonfree
           
       - name: Download FFplay ${{ matrix.os }} nonfree
         uses: actions/download-artifact@v2
         with:
-          name: ffplay-${{ needs.build.outputs.git-sha }}-${{ matrix.os }}-nonfree
+          name: ffplay-${{ needs.build.outputs.git-sha }}-${{ needs.build.outputs.helper-git-sha }}-${{ matrix.os }}-nonfree
           
       - name: 7-Zip FFmpeg ${{ matrix.os }} nonfree
-        run: 7z a ffmpeg-${{needs.build.outputs.git-sha}}-${{matrix.os}}-nonfree.7z ffmpeg.exe ffprobe.exe ffplay.exe -mx9
+        run: 7z a ffmpeg-${{needs.build.outputs.git-sha}}-${{needs.build.outputs.helper-git-sha}}-${{matrix.os}}-nonfree.7z ffmpeg.exe ffprobe.exe ffplay.exe -mx9
         
       - name: Upload FFmpeg archive ${{ matrix.os }} nonfree
         uses: actions/upload-artifact@v2
         with:
-          name: ffmpeg-archive-${{ needs.build.outputs.git-sha }}-${{ matrix.os }}-nonfree
-          path: ffmpeg-${{ needs.build.outputs.git-sha }}-${{ matrix.os }}-nonfree.7z
+          name: ffmpeg-archive-${{ needs.build.outputs.git-sha }}-${{ needs.build.outputs.helper-git-sha }}-${{ matrix.os }}-nonfree
+          path: ffmpeg-${{ needs.build.outputs.git-sha }}-${{ needs.build.outputs.helper-git-sha }}-${{ matrix.os }}-nonfree.7z
           
   release:
     needs: [build, archive]
@@ -120,12 +120,12 @@ jobs:
       - name: Download FFmpeg archive win64
         uses: actions/download-artifact@v2
         with:
-          name: ffmpeg-archive-${{ needs.build.outputs.git-sha }}-win64-nonfree
+          name: ffmpeg-archive-${{ needs.build.outputs.git-sha }}-${{ needs.build.outputs.helper-git-sha }}-win64-nonfree
           
       - name: Download FFmpeg archive win32
         uses: actions/download-artifact@v2
         with:
-          name: ffmpeg-archive-${{ needs.build.outputs.git-sha }}-win32-nonfree
+          name: ffmpeg-archive-${{ needs.build.outputs.git-sha }}-${{ needs.build.outputs.helper-git-sha }}-win32-nonfree
           
       - name: Release
         uses: softprops/action-gh-release@v1
@@ -137,7 +137,7 @@ jobs:
             FFmpeg nonfree git-${{ needs.build.outputs.git-sha }} in ${{ needs.build.outputs.git-date }} built on ${{ needs.build.outputs.date-time-after }} started at ${{ needs.build.outputs.date-time-before }}
             Using ffmpeg-windows-build-helpers git-${{ needs.build.outputs.helper-git-sha }}
           files: |
-            ffmpeg-${{ needs.build.outputs.git-sha }}-win64-nonfree.7z
-            ffmpeg-${{ needs.build.outputs.git-sha }}-win32-nonfree.7z
+            ffmpeg-${{ needs.build.outputs.git-sha }}-${{ needs.build.outputs.helper-git-sha }}-win64-nonfree.7z
+            ffmpeg-${{ needs.build.outputs.git-sha }}-${{ needs.build.outputs.helper-git-sha }}-win32-nonfree.7z
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ github.token }}
