@@ -31,3 +31,5 @@ Uses [Dependabot](https://dependabot.com/) to automatically update submodules.
 For latest bug fixes, new improvements, cutting edge, use git/snapshot/development/master/nightly builds.
 
 For stable release builds for Windows, goto [ffmpeg-stable-autobuild](https://github.com/AnimMouse/ffmpeg-stable-autobuild)
+
+For other builds of FFmpeg built by others, goto [My list of FFmpeg Binaries](https://www.animmouse.com/p/ffmpeg-binaries/).
