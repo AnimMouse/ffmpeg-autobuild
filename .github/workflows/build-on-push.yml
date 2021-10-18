@@ -81,7 +81,7 @@ jobs:
       
   archive:
     needs: build
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
     strategy:
       matrix:
         os: [win64, win32]
@@ -113,7 +113,7 @@ jobs:
           
   release:
     needs: [build, archive]
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
     steps:
       - name: Download FFmpeg archive win64
         uses: actions/download-artifact@v2
@@ -141,7 +141,7 @@ jobs:
           
   delete_old:
     name: Delete older pre-releases
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
     steps:
       - name: Delete older pre-releases
         uses: dev-drprasad/delete-older-releases@v0.2.0
