@@ -136,18 +136,16 @@ jobs:
           files: |
             ffmpeg-${{ needs.build.outputs.git-sha }}-${{ needs.build.outputs.helper-git-sha }}-win64-nonfree.7z
             ffmpeg-${{ needs.build.outputs.git-sha }}-${{ needs.build.outputs.helper-git-sha }}-win32-nonfree.7z
-        env:
-          GITHUB_TOKEN: ${{ github.token }}
-          
+            
   delete_old:
     name: Delete older pre-releases
     runs-on: ubuntu-latest
     steps:
       - name: Delete older pre-releases
         uses: dev-drprasad/delete-older-releases@v0.2.0
-        env:
-          GITHUB_TOKEN: ${{ github.token }}
         with:
           keep_latest: 1
           delete_tags: true
           delete_tag_pattern: a
+        env:
+          GITHUB_TOKEN: ${{ github.token }}

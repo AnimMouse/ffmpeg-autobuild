@@ -139,5 +139,3 @@ jobs:
           files: |
             ffmpeg-${{ needs.build.outputs.git-sha }}-${{ needs.build.outputs.helper-git-sha }}-win64-nonfree.7z
             ffmpeg-${{ needs.build.outputs.git-sha }}-${{ needs.build.outputs.helper-git-sha }}-win32-nonfree.7z
-        env:
-          GITHUB_TOKEN: ${{ github.token }}
