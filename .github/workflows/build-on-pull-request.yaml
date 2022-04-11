@@ -91,17 +91,17 @@ jobs:
         
     steps:
       - name: Download FFmpeg ${{ matrix.os }} nonfree
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v3
         with:
           name: ffmpeg-${{ needs.build.outputs.git-sha }}-${{ needs.build.outputs.helper-git-sha }}-${{ matrix.os }}-nonfree
           
       - name: Download FFprobe ${{ matrix.os }} nonfree
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v3
         with:
           name: ffprobe-${{ needs.build.outputs.git-sha }}-${{ needs.build.outputs.helper-git-sha }}-${{ matrix.os }}-nonfree
           
       - name: Download FFplay ${{ matrix.os }} nonfree
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v3
         with:
           name: ffplay-${{ needs.build.outputs.git-sha }}-${{ needs.build.outputs.helper-git-sha }}-${{ matrix.os }}-nonfree
           
@@ -119,12 +119,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Download FFmpeg archive win64
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v3
         with:
           name: ffmpeg-archive-${{ needs.build.outputs.git-sha }}-${{ needs.build.outputs.helper-git-sha }}-win64-nonfree
           
       - name: Download FFmpeg archive win32
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v3
         with:
           name: ffmpeg-archive-${{ needs.build.outputs.git-sha }}-${{ needs.build.outputs.helper-git-sha }}-win32-nonfree
           
