@@ -10,7 +10,7 @@ on:
       
 jobs:
   build:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
     if: github.actor == 'dependabot[bot]' || github.actor == 'AnimMouse'
     strategy:
       matrix:
@@ -32,20 +32,20 @@ jobs:
         id: git-sha-date
         working-directory: ffmpeg-source
         run: |
-          echo ::set-output name=git-sha::$(git rev-parse --short HEAD)
-          echo ::set-output name=git-date::$(git log -1 --format=%ci)
+          echo git-sha=$(git rev-parse --short HEAD) >> $GITHUB_OUTPUT
+          echo git-date=$(git log -1 --format=%ci) >> $GITHUB_OUTPUT
           
       - name: Get current ffmpeg-windows-build-helpers git commit SHA
         id: helper-git-sha
         working-directory: ffmpeg-windows-build-helpers
-        run: echo ::set-output name=git-sha::$(git rev-parse --short HEAD)
+        run: echo git-sha=$(git rev-parse --short HEAD) >> $GITHUB_OUTPUT
         
       - name: Move ffmpeg-windows-build-helpers
         run: mv -v ./ffmpeg-windows-build-helpers/* ./
         
       - name: Get current date & time before build
         id: date-time-before
-        run: echo ::set-output name=date-time::$(date +'%Y-%m-%d %H:%M')
+        run: echo date-time=$(date +'%Y-%m-%d %H:%M') >> $GITHUB_OUTPUT
         
       - name: Compile FFmpeg using ffmpeg-windows-build-helpers
         run: ./cross_compile_ffmpeg.sh --ffmpeg-source-dir=$GITHUB_WORKSPACE/ffmpeg-source --gcc-cpu-count=$(nproc) --disable-nonfree=n --sandbox-ok=y --compiler-flavors=${{ matrix.os }}
@@ -53,8 +53,8 @@ jobs:
       - name: Get current date & time after build
         id: date-time-after
         run: |
-          echo ::set-output name=date-time::$(date +'%Y-%m-%d %H:%M')
-          echo ::set-output name=date-time-tag::$(date +'%Y-%m-%d-%H-%M')
+          echo date-time=$(date +'%Y-%m-%d %H:%M') >> $GITHUB_OUTPUT
+          echo date-time-tag=$(date +'%Y-%m-%d-%H-%M') >> $GITHUB_OUTPUT
           
       - name: Upload FFmpeg ${{ matrix.os }} nonfree
         uses: actions/upload-artifact@v3
@@ -129,14 +129,13 @@ jobs:
           name: ffmpeg-archive-${{ needs.build.outputs.git-sha }}-${{ needs.build.outputs.helper-git-sha }}-win32-nonfree
           
       - name: Release
-        uses: softprops/action-gh-release@v1
-        with:
-          name: Auto ${{ needs.build.outputs.date-time-after }} ${{ needs.build.outputs.git-sha }}
-          tag_name: a-${{ needs.build.outputs.date-time-after-tag }}
-          prerelease: true
-          body: |
-            FFmpeg nonfree git-${{ needs.build.outputs.git-sha }} in ${{ needs.build.outputs.git-date }} built on ${{ needs.build.outputs.date-time-after }} started at ${{ needs.build.outputs.date-time-before }}
-            Using ffmpeg-windows-build-helpers git-${{ needs.build.outputs.helper-git-sha }}
-          files: |
-            ffmpeg-${{ needs.build.outputs.git-sha }}-${{ needs.build.outputs.helper-git-sha }}-win64-nonfree.7z
-            ffmpeg-${{ needs.build.outputs.git-sha }}-${{ needs.build.outputs.helper-git-sha }}-win32-nonfree.7z
+        run: |
+          gh release create "a-${{ needs.build.outputs.date-time-after-tag }}" \
+          "ffmpeg-${{ needs.build.outputs.git-sha }}-${{ needs.build.outputs.helper-git-sha }}-win64-nonfree.7z" \
+          "ffmpeg-${{ needs.build.outputs.git-sha }}-${{ needs.build.outputs.helper-git-sha }}-win32-nonfree.7z" \
+          -n "FFmpeg nonfree git-${{ needs.build.outputs.git-sha }} in ${{ needs.build.outputs.git-date }} built on ${{ needs.build.outputs.date-time-after }} started at ${{ needs.build.outputs.date-time-before }}
+          Using ffmpeg-windows-build-helpers git-${{ needs.build.outputs.helper-git-sha }}" \
+          -p -t "Auto ${{ needs.build.outputs.date-time-after }} ${{ needs.build.outputs.git-sha }}"
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
