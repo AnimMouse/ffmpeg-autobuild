@@ -1,33 +1,38 @@
-name: Build FFmpeg on pull request
+name: Build FFmpeg
 on:
-  pull_request_target:
-    paths:
-      - ffmpeg-source
-      - ffmpeg-windows-build-helpers
-      - dependencies.sh
-      - .github/workflows/build-on-push.yaml
-      - .github/workflows/build-on-pull-request.yaml
-      
+  schedule:
+    - cron: '7 11 * * 0'
+  workflow_dispatch:
+  watch:
+    types: [started]
+    
 jobs:
   build:
     runs-on: ubuntu-latest
-    if: github.actor == 'dependabot[bot]' || github.actor == 'AnimMouse'
     strategy:
       matrix:
         os: [win64, win32]
         
     steps:
-      - name: Checkout repository
+      - name: Checkout ffmpeg-windows-build-helpers
         uses: actions/checkout@v4
         with:
-          submodules: true
-          ref: ${{ github.event.pull_request.head.ref }}
-          repository: ${{ github.event.pull_request.head.repo.full_name }}
+          repository: rdp/ffmpeg-windows-build-helpers
           persist-credentials: false
           
+      - name: Checkout FFmpeg
+        uses: actions/checkout@v4
+        with:
+          repository: FFmpeg/FFmpeg
+          persist-credentials: false
+          path: ffmpeg-source
+          
       - name: Install dependencies
-        run: ./dependencies.sh
-        
+        run: |
+          sudo apt-get -qq update
+          sudo apt-get -qq install ragel cvs yasm pax nasm gperf autogen autoconf-archive
+          sudo -H pip3 -qq install meson ninja
+          
       - name: Get current FFmpeg git commit SHA & date
         id: git-sha-date
         working-directory: ffmpeg-source
@@ -37,11 +42,7 @@ jobs:
           
       - name: Get current ffmpeg-windows-build-helpers git commit SHA
         id: helper-git-sha
-        working-directory: ffmpeg-windows-build-helpers
         run: echo git-sha=$(git rev-parse --short HEAD) >> $GITHUB_OUTPUT
-        
-      - name: Move ffmpeg-windows-build-helpers
-        run: mv -v ./ffmpeg-windows-build-helpers/* ./
         
       - name: Get current date & time before build
         id: date-time-before
@@ -61,18 +62,21 @@ jobs:
         with:
           name: ffmpeg-${{ steps.git-sha-date.outputs.git-sha }}-${{ steps.helper-git-sha.outputs.git-sha }}-${{ matrix.os }}-nonfree
           path: ffmpeg-source/ffmpeg.exe
+          retention-days: 1
           
       - name: Upload FFprobe ${{ matrix.os }} nonfree
         uses: actions/upload-artifact@v4
         with:
           name: ffprobe-${{ steps.git-sha-date.outputs.git-sha }}-${{ steps.helper-git-sha.outputs.git-sha }}-${{ matrix.os }}-nonfree
           path: ffmpeg-source/ffprobe.exe
+          retention-days: 1
           
       - name: Upload FFplay ${{ matrix.os }} nonfree
         uses: actions/upload-artifact@v4
         with:
           name: ffplay-${{ steps.git-sha-date.outputs.git-sha }}-${{ steps.helper-git-sha.outputs.git-sha }}-${{ matrix.os }}-nonfree
           path: ffmpeg-source/ffplay.exe
+          retention-days: 1
           
     outputs:
       date-time-before: ${{ steps.date-time-before.outputs.date-time }}
@@ -129,13 +133,13 @@ jobs:
           name: ffmpeg-archive-${{ needs.build.outputs.git-sha }}-${{ needs.build.outputs.helper-git-sha }}-win32-nonfree
           
       - name: Release
-        run: |
-          gh release create "a-${{ needs.build.outputs.date-time-after-tag }}" \
-          "ffmpeg-${{ needs.build.outputs.git-sha }}-${{ needs.build.outputs.helper-git-sha }}-win64-nonfree.7z" \
-          "ffmpeg-${{ needs.build.outputs.git-sha }}-${{ needs.build.outputs.helper-git-sha }}-win32-nonfree.7z" \
+        run: >
+          gh release create "${{ needs.build.outputs.date-time-after-tag }}"
+          "ffmpeg-${{ needs.build.outputs.git-sha }}-${{ needs.build.outputs.helper-git-sha }}-win64-nonfree.7z"
+          "ffmpeg-${{ needs.build.outputs.git-sha }}-${{ needs.build.outputs.helper-git-sha }}-win32-nonfree.7z"
           -n "FFmpeg nonfree git-${{ needs.build.outputs.git-sha }} in ${{ needs.build.outputs.git-date }} built on ${{ needs.build.outputs.date-time-after }} started at ${{ needs.build.outputs.date-time-before }}
-          Using ffmpeg-windows-build-helpers git-${{ needs.build.outputs.helper-git-sha }}" \
-          -p -t "Auto ${{ needs.build.outputs.date-time-after }} ${{ needs.build.outputs.git-sha }}"
+          Using ffmpeg-windows-build-helpers git-${{ needs.build.outputs.helper-git-sha }}"
+          -t "${{ needs.build.outputs.date-time-after }} ${{ needs.build.outputs.git-sha }}"
         env:
           GITHUB_TOKEN: ${{ github.token }}
           GH_REPO: ${{ github.repository }}
