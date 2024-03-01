@@ -1,20 +1,15 @@
 # FFmpeg Latest Autobuilds for Windows
+![Build FFmpeg](https://github.com/AnimMouse/ffmpeg-autobuild/workflows/Build%20FFmpeg/badge.svg)
 
-![Build FFmpeg on push](https://github.com/AnimMouse/ffmpeg-autobuild/workflows/Build%20FFmpeg%20on%20push/badge.svg)
-![Build FFmpeg on pull request](https://github.com/AnimMouse/ffmpeg-autobuild/workflows/Build%20FFmpeg%20on%20pull%20request/badge.svg)
-
-[FFmpeg](https://ffmpeg.org/) latest nonfree git/snapshot/development/master/nightly builds with additional libraries/dependencies.
+[FFmpeg](https://ffmpeg.org) latest nonfree git/snapshot/development/master/nightly builds with additional libraries/dependencies.
 
 [Downloads](https://github.com/AnimMouse/ffmpeg-autobuild/releases)
 
-#### Schedule
-
-Release builds: Weekly or Every time [ffmpeg-windows-build-helpers](https://github.com/rdp/ffmpeg-windows-build-helpers) updates or I updated the repository.\
-Pre-release builds: Every 9:00 AM GMT+8 daily except weekends.
+### Schedule
+At 11:07 on Sunday weekly or if someone starred this repository.
 
 #### Release Retention Policy
-Release builds are kept for two years.\
-Last 1 pre-release build are kept every time a release build are released.
+Release builds are kept for two years.
 
 ffmpeg, ffprobe, and ffplay are included.
 
@@ -26,10 +21,8 @@ Powered by [ffmpeg-windows-build-helpers](https://github.com/rdp/ffmpeg-windows-
 
 Uses [GitHub Actions](https://github.com/features/actions) to automatically compile FFmpeg.
 
-Uses [Dependabot](https://dependabot.com/) to automatically update submodules.
-
 For latest bug fixes, new improvements, cutting edge, use git/snapshot/development/master/nightly builds.
 
-For stable release builds for Windows, goto [ffmpeg-stable-autobuild](https://github.com/AnimMouse/ffmpeg-stable-autobuild)
+For stable release builds for Windows, go to [ffmpeg-stable-autobuild](https://github.com/AnimMouse/ffmpeg-stable-autobuild)
 
-For other builds of FFmpeg built by others, goto [My list of FFmpeg Binaries](https://www.animmouse.com/p/ffmpeg-binaries/).
+For other builds of FFmpeg built by others, go to [My list of FFmpeg Binaries](https://www.animmouse.com/p/ffmpeg-binaries/).
