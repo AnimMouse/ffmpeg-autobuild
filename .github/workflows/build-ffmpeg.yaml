@@ -125,8 +125,13 @@ jobs:
         with:
           name: ffmpeg-${{ matrix.os }}
           
+      - name: Create LICENSE
+        run: |
+          echo "This version of ffmpeg has nonfree parts compiled in." >> LICENSE
+          echo "Therefore it is not legally redistributable." >> LICENSE
+          
       - name: 7-Zip FFmpeg binaries
-        run: 7z a -mx9 ffmpeg-${{ needs.check.outputs.git-sha-short }}-${{ needs.check.outputs.helper-git-sha-short }}-${{ matrix.os }}-nonfree.7z ffmpeg.exe ffprobe.exe ffplay.exe
+        run: 7z a -mx9 ffmpeg-${{ needs.check.outputs.git-sha-short }}-${{ needs.check.outputs.helper-git-sha-short }}-${{ matrix.os }}-nonfree.7z ffmpeg.exe ffprobe.exe ffplay.exe LICENSE
         
       - name: Upload FFmpeg archive
         uses: actions/upload-artifact@v4
