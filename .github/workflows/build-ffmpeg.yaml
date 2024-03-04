@@ -6,6 +6,9 @@ on:
   watch:
     types: [started]
     
+concurrency:
+  group: ${{ github.workflow }}
+  
 jobs:
   check:
     runs-on: ubuntu-latest
@@ -39,8 +42,8 @@ jobs:
           
       - name: Check if there is newer commit
         run: >
-          [[ ${{ steps.ffmpeg-info.outputs.git-sha-short }} != ${{ steps.ffmpeg-autobuild-info.outputs.git-sha }} ]] ||
-          [[ ${{ steps.ffmpeg-helper-info.outputs.git-sha-short }} != ${{ steps.ffmpeg-autobuild-info.outputs.helper-git-sha }} ]]
+          [[ "${{ steps.ffmpeg-info.outputs.git-sha-short }}" != "${{ steps.ffmpeg-autobuild-info.outputs.git-sha }}" ]] ||
+          [[ "${{ steps.ffmpeg-helper-info.outputs.git-sha-short }}" != "${{ steps.ffmpeg-autobuild-info.outputs.helper-git-sha }}" ]]
           
     outputs:
       git-sha: ${{ steps.ffmpeg-info.outputs.git-sha }}
@@ -71,12 +74,14 @@ jobs:
           persist-credentials: false
           path: ffmpeg-source
           
-      - name: Install dependencies
-        run: |
-          sudo apt-get -qq update
-          sudo apt-get -qq install ragel cvs yasm pax nasm gperf autogen autoconf-archive
-          sudo -H pip3 -qq install meson ninja
+      - name: Install APT dependencies
+        uses: awalsh128/cache-apt-pkgs-action@latest
+        with:
+          packages: ragel cvs yasm pax nasm gperf autogen autoconf-archive
           
+      - name: Install pip dependencies
+        run: sudo -H pip3 -qq install meson ninja
+        
       - name: Get current FFmpeg git date
         id: git-date
         working-directory: ffmpeg-source
