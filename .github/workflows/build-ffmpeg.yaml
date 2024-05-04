@@ -132,6 +132,9 @@ jobs:
       git-date: ${{ steps.git-date.outputs.git-date }}
       
   archive:
+    permissions:
+      id-token: write
+      attestations: write
     needs: [check, build]
     runs-on: ubuntu-latest
     strategy:
