@@ -5,13 +5,13 @@ on:
   workflow_dispatch:
     inputs:
       force_build:
-        description: Don't check if there is newer commit
+        description: Disable checking for newer commit
         type: boolean
       no_release:
         description: Don't create release
         type: boolean
-      use_animmouse_fork:
-        description: Use Anim Mouse's fork
+      use_own_fork:
+        description: Use own ffmpeg-windows-build-helpers fork
         type: boolean
   watch:
     types: [started]
@@ -32,10 +32,12 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ github.token }}
           
-      - name: Get ${{ inputs.use_animmouse_fork && 'AnimMouse' || 'rdp' }}/ffmpeg-windows-build-helpers latest commit
+      - name: Get ${{ inputs.use_own_fork && github.repository_owner || 'rdp' }}/ffmpeg-windows-build-helpers latest commit
         id: ffmpeg-helper-info
         run: |
-          git_sha=$(gh api repos/${{ inputs.use_animmouse_fork && 'AnimMouse' || 'rdp' }}/ffmpeg-windows-build-helpers/commits/master -q .sha)
+          git_owner=${{ inputs.use_own_fork && github.repository_owner || 'rdp' }}
+          git_sha=$(gh api repos/$git_owner/ffmpeg-windows-build-helpers/commits/master -q .sha)
+          echo git-owner=$git_owner >> $GITHUB_OUTPUT
           echo git-sha=$git_sha >> $GITHUB_OUTPUT
           echo git-sha-short=${git_sha::7} >> $GITHUB_OUTPUT
         env:
@@ -59,6 +61,7 @@ jobs:
     outputs:
       git-sha: ${{ steps.ffmpeg-info.outputs.git-sha }}
       git-sha-short: ${{ steps.ffmpeg-info.outputs.git-sha-short }}
+      helper-git-owner: ${{ steps.ffmpeg-helper-info.outputs.git-owner }}
       helper-git-sha: ${{ steps.ffmpeg-helper-info.outputs.git-sha }}
       helper-git-sha-short: ${{ steps.ffmpeg-helper-info.outputs.git-sha-short }}
       
@@ -70,10 +73,10 @@ jobs:
         os: [win64, win32]
         
     steps:
-      - name: Checkout ffmpeg-windows-build-helpers
+      - name: Checkout ${{ needs.check.outputs.helper-git-owner }}/ffmpeg-windows-build-helpers
         uses: actions/checkout@v4
         with:
-          repository: ${{ inputs.use_animmouse_fork && 'AnimMouse' || 'rdp' }}/ffmpeg-windows-build-helpers
+          repository: ${{ needs.check.outputs.helper-git-owner }}/ffmpeg-windows-build-helpers
           ref: ${{ needs.check.outputs.helper-git-sha }}
           persist-credentials: false
           
@@ -146,9 +149,21 @@ jobs:
           echo "This version of ffmpeg has nonfree parts compiled in." >> LICENSE
           echo "Therefore it is not legally redistributable." >> LICENSE
           
+      - name: Generate artifact attestation for FFmpeg binaries
+        if: '! inputs.no_release'
+        uses: actions/attest-build-provenance@v1
+        with:
+          subject-path: ff*.exe
+          
       - name: 7-Zip FFmpeg binaries
         run: 7z a -mx9 ffmpeg-${{ needs.check.outputs.git-sha-short }}-${{ needs.check.outputs.helper-git-sha-short }}-${{ matrix.os }}-nonfree.7z ff{mpeg,probe,play}.exe LICENSE
         
+      - name: Generate artifact attestation for FFmpeg archive
+        if: '! inputs.no_release'
+        uses: actions/attest-build-provenance@v1
+        with:
+          subject-path: ffmpeg-${{ needs.check.outputs.git-sha-short }}-${{ needs.check.outputs.helper-git-sha-short }}-${{ matrix.os }}-nonfree.7z
+          
       - name: Upload FFmpeg archive
         uses: actions/upload-artifact@v4
         with:
@@ -173,7 +188,7 @@ jobs:
           gh release create "${{ needs.build.outputs.date-time-after-tag }}-${{ needs.check.outputs.git-sha-short }}-${{ needs.check.outputs.helper-git-sha-short }}" \
           ffmpeg-${{ needs.check.outputs.git-sha-short }}-${{ needs.check.outputs.helper-git-sha-short }}-{win64,win32}-nonfree.7z \
           -n "FFmpeg nonfree git-${{ needs.check.outputs.git-sha }} in ${{ needs.build.outputs.git-date }} built on ${{ needs.build.outputs.date-time-after }} started at ${{ needs.build.outputs.date-time-before }}
-          Using ffmpeg-windows-build-helpers git-${{ needs.check.outputs.helper-git-sha }}" \
+          Using ${{ needs.check.outputs.helper-git-owner }}/ffmpeg-windows-build-helpers git-${{ needs.check.outputs.helper-git-sha }}" \
           -t "${{ needs.build.outputs.date-time-after }} ${{ needs.check.outputs.git-sha-short }}"
         env:
           GITHUB_TOKEN: ${{ github.token }}
