@@ -3,6 +3,16 @@ on:
   schedule:
     - cron: '7 11 * * 0'
   workflow_dispatch:
+    inputs:
+      force_build:
+        description: Don't check if there is newer commit
+        type: boolean
+      no_release:
+        description: Don't create release
+        type: boolean
+      use_animmouse_fork:
+        description: Use Anim Mouse's fork
+        type: boolean
   watch:
     types: [started]
     
@@ -22,10 +32,10 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ github.token }}
           
-      - name: Get ffmpeg-windows-build-helpers latest commit
+      - name: Get ${{ inputs.use_animmouse_fork && 'AnimMouse' || 'rdp' }}/ffmpeg-windows-build-helpers latest commit
         id: ffmpeg-helper-info
         run: |
-          git_sha=$(gh api repos/rdp/ffmpeg-windows-build-helpers/commits/master -q .sha)
+          git_sha=$(gh api repos/${{ inputs.use_animmouse_fork && 'AnimMouse' || 'rdp' }}/ffmpeg-windows-build-helpers/commits/master -q .sha)
           echo git-sha=$git_sha >> $GITHUB_OUTPUT
           echo git-sha-short=${git_sha::7} >> $GITHUB_OUTPUT
         env:
@@ -41,6 +51,7 @@ jobs:
           GITHUB_TOKEN: ${{ github.token }}
           
       - name: Check if there is newer commit
+        if: '! inputs.force_build'
         run: >
           [[ "${{ steps.ffmpeg-info.outputs.git-sha-short }}" != "${{ steps.ffmpeg-autobuild-info.outputs.git-sha }}" ]] ||
           [[ "${{ steps.ffmpeg-helper-info.outputs.git-sha-short }}" != "${{ steps.ffmpeg-autobuild-info.outputs.helper-git-sha }}" ]]
@@ -62,7 +73,7 @@ jobs:
       - name: Checkout ffmpeg-windows-build-helpers
         uses: actions/checkout@v4
         with:
-          repository: rdp/ffmpeg-windows-build-helpers
+          repository: ${{ inputs.use_animmouse_fork && 'AnimMouse' || 'rdp' }}/ffmpeg-windows-build-helpers
           ref: ${{ needs.check.outputs.helper-git-sha }}
           persist-credentials: false
           
@@ -91,7 +102,7 @@ jobs:
         id: date-time-before
         run: echo date-time=$(date +'%Y-%m-%d %H:%M') >> $GITHUB_OUTPUT
         
-      - name: Compile FFmpeg using ffmpeg-windows-build-helpers
+      - name: Compile FFmpeg ${{ needs.check.outputs.git-sha-short }} using ffmpeg-windows-build-helpers ${{ needs.check.outputs.helper-git-sha-short }}
         run: ./cross_compile_ffmpeg.sh --ffmpeg-source-dir=$GITHUB_WORKSPACE/ffmpeg-source --gcc-cpu-count=$(nproc) --disable-nonfree=n --sandbox-ok=y --compiler-flavors=${{ matrix.os }}
         
       - name: Get current date & time after build
@@ -109,7 +120,7 @@ jobs:
             ffmpeg-source/ffprobe.exe
             ffmpeg-source/ffplay.exe
           if-no-files-found: error
-          retention-days: 1
+          retention-days: ${{ inputs.no_release && '0' || '1' }}
           
     outputs:
       date-time-before: ${{ steps.date-time-before.outputs.date-time }}
@@ -143,11 +154,12 @@ jobs:
         with:
           name: ffmpeg-archive-${{ matrix.os }}
           path: ffmpeg-${{ needs.check.outputs.git-sha-short }}-${{ needs.check.outputs.helper-git-sha-short }}-${{ matrix.os }}-nonfree.7z
-          retention-days: 1
+          retention-days: ${{ inputs.no_release && '0' || '1' }}
           compression-level: 0
           
   release:
     needs: [check, build, archive]
+    if: '! inputs.no_release'
     runs-on: ubuntu-latest
     steps:
       - name: Download FFmpeg archives
