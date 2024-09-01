@@ -3,6 +3,6 @@ updates:
   - package-ecosystem: github-actions
     directory: /
     schedule:
-      interval: daily
-      time: '09:00'
-      timezone: Asia/Manila
+      interval: weekly
+      day: sunday
+      time: '11:07'
