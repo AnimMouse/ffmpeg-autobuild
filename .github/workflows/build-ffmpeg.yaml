@@ -154,7 +154,7 @@ jobs:
           
       - name: Generate artifact attestation for FFmpeg binaries
         if: '! inputs.no_release'
-        uses: actions/attest-build-provenance@v1
+        uses: actions/attest-build-provenance@v2
         with:
           subject-path: ff*.exe
           
@@ -163,7 +163,7 @@ jobs:
         
       - name: Generate artifact attestation for FFmpeg archive
         if: '! inputs.no_release'
-        uses: actions/attest-build-provenance@v1
+        uses: actions/attest-build-provenance@v2
         with:
           subject-path: ffmpeg-${{ needs.check.outputs.git-sha-short }}-${{ needs.check.outputs.helper-git-sha-short }}-${{ matrix.os }}-nonfree.7z
           
