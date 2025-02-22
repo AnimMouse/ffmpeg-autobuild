@@ -10,9 +10,6 @@ on:
       no_release:
         description: Don't create release
         type: boolean
-      use_own_fork:
-        description: Use own ffmpeg-windows-build-helpers fork
-        type: boolean
   watch:
     types: [started]
     
@@ -32,10 +29,10 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ github.token }}
           
-      - name: Get ${{ inputs.use_own_fork && github.repository_owner || 'rdp' }}/ffmpeg-windows-build-helpers latest commit
+      - name: Get ${{ vars.FWBH_REPOSITORY_OWNER }}/ffmpeg-windows-build-helpers latest commit
         id: ffmpeg-helper-info
         run: |
-          git_owner=${{ inputs.use_own_fork && github.repository_owner || 'rdp' }}
+          git_owner=${{ vars.FWBH_REPOSITORY_OWNER }}
           git_sha=$(gh api repos/$git_owner/ffmpeg-windows-build-helpers/commits/master -q .sha)
           echo git-owner=$git_owner >> $GITHUB_OUTPUT
           echo git-sha=$git_sha >> $GITHUB_OUTPUT
