@@ -88,7 +88,7 @@ jobs:
       - name: Install APT dependencies
         uses: awalsh128/cache-apt-pkgs-action@v1
         with:
-          packages: ragel cvs yasm pax nasm gperf autogen autoconf-archive
+          packages: ragel cvs yasm pax nasm gperf autogen autoconf-archive subversion
           
       - name: Install pip dependencies
         run: sudo -H pip3 -qq install meson ninja
