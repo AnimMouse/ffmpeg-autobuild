@@ -18,7 +18,7 @@ concurrency:
   
 jobs:
   check:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-slim
     steps:
       - name: Get FFmpeg latest commit
         id: ffmpeg-info
@@ -64,7 +64,7 @@ jobs:
       
   build:
     needs: check
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     strategy:
       matrix:
         os: [win64, win32]
@@ -175,7 +175,7 @@ jobs:
   release:
     needs: [check, build, archive]
     if: '! inputs.no_release'
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-slim
     steps:
       - name: Download FFmpeg archives
         uses: actions/download-artifact@v7
